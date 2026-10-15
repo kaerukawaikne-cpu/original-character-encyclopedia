@@ -348,7 +348,7 @@
     <div class="section-card">
       <h2>タグ管理</h2>
       <p class="filter-help">
-        ここで作ったタグは、どのキャラクターにも使えるよ！
+        ここで作ったタグは、どのキャラクターにも使用可能。
       </p>
 
       <div class="tag-row">
@@ -362,7 +362,7 @@
     <div class="section-card">
       <h2>絞り込み</h2>
       <p class="filter-help">
-        選んだタグをすべて持っているキャラだけ表示するよ。
+        選んだタグを全て保有しているキャラのみ表示される。
       </p>
 
       <div id="filterTags" class="filter-tags"></div>
@@ -428,7 +428,7 @@
       <div class="section-card">
         <h2>タグ</h2>
         <p class="filter-help">
-          チェックを入れると、このキャラにタグがつくよ。
+          チェックを入れると、このキャラにタグが付与される。
         </p>
 
         <div id="characterTagPicker" class="tag-picker"></div>
@@ -511,7 +511,7 @@
         };
 
         img.onerror = function() {
-          alert("この画像は読み込めなかったよ。別の画像を試してね。");
+          alert("この画像は読み込めませんでした。別の画像を試してください。");
         };
 
         img.src = e.target.result;
@@ -692,7 +692,7 @@
 
     function deleteTag(tag) {
       if (!confirm(
-        "タグ「" + tag + "」を削除するよ。すべてのキャラからも外れるけどいい？"
+        "タグ「" + tag + "」を削除します。すべてのキャラからも外れますがよろしいですか？"
       )) return;
 
       allTags = allTags.filter(item => item !== tag);
@@ -723,7 +723,7 @@
 
       if (allTags.length === 0) {
         container.innerHTML =
-          '<p class="empty-message">まだタグがないよ。上から作ってみてね！</p>';
+          '<p class="empty-message">まだタグがありません。上から作ってみてね！</p>';
         return;
       }
 
@@ -756,7 +756,7 @@
 
       if (allTags.length === 0) {
         container.innerHTML =
-          '<p class="empty-message">タグを作ると、ここで絞り込めるよ。</p>';
+          '<p class="empty-message">タグを作ると、ここで絞り込むことができます。</p>';
         return;
       }
 
@@ -816,7 +816,7 @@
 
       if (filtered.length === 0) {
         list.innerHTML =
-          '<p class="empty-message">該当するキャラがいないよ。タグの選択を見直してみてね。</p>';
+          '<p class="empty-message">該当するキャラがいません。タグの選択を見直してください。</p>';
         return;
       }
 
@@ -880,7 +880,7 @@
 
       if (allTags.length === 0) {
         container.innerHTML =
-          '<p class="empty-message">まだタグがないよ。下から新しいタグを作ってね。</p>';
+          '<p class="empty-message">まだタグがありません。下から新しいタグを作ってください。</p>';
         return;
       }
 
