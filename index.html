@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オリキャラ図鑑</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f6f1f7;
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #7b4b83;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    #characterImage, #detailImage {
+      width: 220px;
+      height: 220px;
+      object-fit: contain;
+      display: block;
+      margin: 10px auto 20px;
+      border-radius: 15px;
+      background: #eee;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 15px 0 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: sans-serif;
+      background: white;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      width: 100%;
+    }
+
+    button {
+      box-sizing: border-box;
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #7b4b83;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    button:active {
+      opacity: 0.8;
+    }
+
+    /* キャラクター一覧：スマホでは2列 */
+    #characterList {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .character-card {
+      background: white;
+      padding: 10px;
+      border-radius: 15px;
+      text-align: center;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .character-card img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #eee;
+    }
+
+    .character-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-button {
+      background: #7b4b83;
+      font-size: 13px;
+      padding: 10px 5px;
+      margin-top: 8px;
+    }
+
+    .delete-button,
+    .small-gray-button {
+      background: #aaa;
+      font-size: 13px;
+      padding: 10px 5px;
+      margin-top: 8px;
+    }
+
+    /* キャラクターがいないときのメッセージ */
+    #characterList > .empty-message {
+      grid-column: 1 / -1;
+    }
+
+    /* PCなど横幅が広い画面ではカード幅を約180pxに固定 */
+    @media (min-width: 600px) {
+      #characterList {
+        grid-template-columns: repeat(auto-fill, 180px);
+        justify-content: start;
+      }
+    }
+
+    #detailPage {
+      display: none;
+    }
+
+    .detail-title {
+      text-align: center;
+      color: #7b4b83;
+      margin-bottom: 20px;
+    }
+
+    .custom-field {
+      background: #f6f1f7;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 15px;
+    }
+
+    .custom-field-header {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .custom-field-header input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .remove-field-button {
+      width: auto;
+      margin: 0;
+      padding: 10px 14px;
+      background: #aaa;
+      font-size: 14px;
+    }
+
+    .custom-field textarea {
+      margin-top: 8px;
+    }
+
+    .back-button {
+      background: #aaa;
+    }
+
+    .add-field-button,
+    .add-tag-button {
+      background: #6d8f72;
+    }
+
+    .section-card {
+      background: white;
+      padding: 15px;
+      border-radius: 16px;
+      margin-top: 18px;
+    }
+
+    .section-card h2 {
+      color: #7b4b83;
+      font-size: 19px;
+      margin-top: 0;
+    }
+
+    .tag-list,
+    .tag-picker,
+    .filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #efe2f2;
+      color: #61396a;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .tag-chip button {
+      width: auto;
+      margin: 0;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #d6c0dc;
+      color: #4c2d53;
+    }
+
+    .tag-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #f6f1f7;
+      border: 1px solid #d9c9dd;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+
+    .tag-option input {
+      width: auto;
+      margin: 0;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .tag-row input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tag-row button {
+      width: auto;
+      white-space: nowrap;
+      margin: 0;
+      padding: 12px;
+    }
+
+    .tag-management-item {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .tag-management-item .tag-chip {
+      flex: 1;
+    }
+
+    .tag-management-item button {
+      width: auto;
+      margin: 0;
+      padding: 9px;
+      font-size: 12px;
+    }
+
+    .rename-tag-button {
+      background: #8c6a94;
+    }
+
+    .filter-help,
+    .empty-message {
+      color: #777;
+      font-size: 13px;
+    }
+
+    .character-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .character-tags .tag-chip {
+      font-size: 11px;
+      padding: 4px 7px;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-actions button {
+      flex: 1;
+    }
+
+    @media (max-width: 360px) {
+      body {
+        padding: 10px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="listPage">
+    <h1>オリキャラ図鑑</h1>
+
+    <div class="card">
+      <label>キャラクター画像</label>
+      <img id="characterImage" src="" alt="画像を選択してください">
+      <input type="file" id="imageInput" accept="image/*">
+
+      <label for="name">名前</label>
+      <input type="text" id="name" placeholder="キャラクターの名前">
+
+      <button onclick="saveCharacter()">保存する</button>
+    </div>
+
+    <div class="section-card">
+      <h2>タグ管理</h2>
+      <p class="filter-help">
+        ここで作ったタグは、どのキャラクターにも使えるよ！
+      </p>
+
+      <div class="tag-row">
+        <input type="text" id="newTagName" placeholder="新しいタグ名">
+        <button class="add-tag-button" onclick="addGlobalTag()">タグを追加</button>
+      </div>
+
+      <div id="tagManagementList"></div>
+    </div>
+
+    <div class="section-card">
+      <h2>絞り込み</h2>
+      <p class="filter-help">
+        選んだタグをすべて持っているキャラだけ表示するよ。
+      </p>
+
+      <div id="filterTags" class="filter-tags"></div>
+
+      <div class="filter-actions">
+        <button class="small-gray-button" onclick="clearTagFilters()">解除</button>
+        <button onclick="applyTagFilters()">絞り込む</button>
+      </div>
+    </div>
+
+    <label for="sortSelect">並び順</label>
+    <select id="sortSelect" onchange="sortCharacters()">
+      <option value="created">作った順</option>
+      <option value="name">名前順</option>
+    </select>
+
+    <p id="resultCount" class="filter-help"></p>
+    <div id="characterList"></div>
+  </div>
+
+  <div id="detailPage">
+    <h1 class="detail-title">キャラクター詳細</h1>
+
+    <div class="card">
+      <img id="detailImage" src="" alt="キャラクター画像">
+
+      <label>キャラクター画像を変更</label>
+      <input type="file" id="detailImageInput" accept="image/*">
+
+      <label>名前</label>
+      <input type="text" id="detailName">
+
+      <label>年齢</label>
+      <input type="text" id="detailAge">
+
+      <label>性別</label>
+      <input type="text" id="detailGender">
+
+      <label>誕生日</label>
+      <input type="text" id="detailBirthday">
+
+      <label>身長</label>
+      <input type="text" id="detailHeight">
+
+      <label>性格</label>
+      <textarea id="detailPersonality"></textarea>
+
+      <label>好きなもの</label>
+      <textarea id="detailLikes"></textarea>
+
+      <label>嫌いなもの</label>
+      <textarea id="detailDislikes"></textarea>
+
+      <label>一人称</label>
+      <input type="text" id="detailFirstPerson">
+
+      <label>二人称</label>
+      <input type="text" id="detailSecondPerson">
+
+      <label>口調</label>
+      <textarea id="detailSpeech"></textarea>
+
+      <div class="section-card">
+        <h2>タグ</h2>
+        <p class="filter-help">
+          チェックを入れると、このキャラにタグがつくよ。
+        </p>
+
+        <div id="characterTagPicker" class="tag-picker"></div>
+
+        <label for="detailNewTagName">新しいタグを作って追加</label>
+
+        <div class="tag-row">
+          <input type="text" id="detailNewTagName" placeholder="例：魔法使い">
+          <button class="add-tag-button" onclick="addTagFromDetail()">作成</button>
+        </div>
+      </div>
+
+      <h2>その他の情報</h2>
+      <div id="customFields"></div>
+
+      <button class="add-field-button" onclick="addCustomField()">＋ 項目を追加</button>
+      <button onclick="saveDetails()">詳細を保存</button>
+      <button class="back-button" onclick="showListPage()">一覧に戻る</button>
+    </div>
+  </div>
+
+  <script>
+    let characters = JSON.parse(localStorage.getItem("characters")) || [];
+    let currentCharacterIndex = null;
+    let allTags = JSON.parse(localStorage.getItem("characterTags")) || [];
+    let selectedFilterTags = [];
+
+    // 古いデータや重複タグを整える
+    characters.forEach(character => {
+      if (!Array.isArray(character.tags)) character.tags = [];
+    });
+
+    allTags = [...new Set(allTags.filter(
+      tag => typeof tag === "string" && tag.trim()
+    ))];
+
+    characters.forEach(character => {
+      character.tags.forEach(tag => {
+        if (!allTags.includes(tag)) allTags.push(tag);
+      });
+    });
+
+    saveAllData();
+
+    function saveAllData() {
+      localStorage.setItem("characters", JSON.stringify(characters));
+      localStorage.setItem("characterTags", JSON.stringify(allTags));
+    }
+
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const img = new Image();
+
+        img.onload = function() {
+          const canvas = document.createElement("canvas");
+          const maxSize = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxSize || height > maxSize) {
+            if (width > height) {
+              height = Math.round(height * maxSize / width);
+              width = maxSize;
+            } else {
+              width = Math.round(width * maxSize / height);
+              height = maxSize;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          canvas.getContext("2d").drawImage(
+            img, 0, 0, width, height
+          );
+
+          callback(canvas.toDataURL("image/jpeg", 0.7));
+        };
+
+        img.onerror = function() {
+          alert("この画像は読み込めなかったよ。別の画像を試してね。");
+        };
+
+        img.src = e.target.result;
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById("imageInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      compressImage(file, function(compressedImage) {
+        document.getElementById("characterImage").src = compressedImage;
+      });
+    });
+
+    document.getElementById("detailImageInput").addEventListener("change", function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      compressImage(file, function(compressedImage) {
+        document.getElementById("detailImage").src = compressedImage;
+      });
+    });
+
+    function saveCharacter() {
+      const name = document.getElementById("name").value.trim();
+      const image = document.getElementById("characterImage").getAttribute("src") || "";
+
+      if (!name) {
+        alert("名前を入力してください！");
+        return;
+      }
+
+      characters.push({
+        name,
+        image,
+        createdAt: Date.now(),
+        age: "",
+        gender: "",
+        birthday: "",
+        height: "",
+        personality: "",
+        likes: "",
+        dislikes: "",
+        firstPerson: "",
+        secondPerson: "",
+        speech: "",
+        customFields: [],
+        tags: []
+      });
+
+      saveAllData();
+      displayCharacters();
+
+      document.getElementById("name").value = "";
+      document.getElementById("characterImage").src = "";
+      document.getElementById("imageInput").value = "";
+
+      alert("キャラクターを保存しました！");
+    }
+
+    function sortCharacters() {
+      const sortType = document.getElementById("sortSelect").value;
+
+      if (sortType === "name") {
+        characters.sort((a, b) =>
+          String(a.name || "").localeCompare(String(b.name || ""), "ja")
+        );
+      } else {
+        characters.sort((a, b) =>
+          (a.createdAt || 0) - (b.createdAt || 0)
+        );
+      }
+
+      saveAllData();
+      displayCharacters();
+    }
+
+    function addGlobalTag() {
+      const input = document.getElementById("newTagName");
+      const tag = input.value.trim();
+
+      if (!tag) {
+        alert("タグ名を入力してね！");
+        return;
+      }
+
+      if (allTags.includes(tag)) {
+        alert("そのタグはもうあるよ！");
+        return;
+      }
+
+      allTags.push(tag);
+      saveAllData();
+
+      input.value = "";
+
+      renderTagManagement();
+      renderFilterTags();
+
+      if (currentCharacterIndex !== null) {
+        renderCharacterTagPicker();
+      }
+    }
+
+    function addTagFromDetail() {
+      const input = document.getElementById("detailNewTagName");
+      const tag = input.value.trim();
+
+      if (!tag) {
+        alert("タグ名を入力してね！");
+        return;
+      }
+
+      if (!allTags.includes(tag)) {
+        allTags.push(tag);
+        saveAllData();
+      }
+
+      const character = characters[currentCharacterIndex];
+
+      if (character && !character.tags.includes(tag)) {
+        character.tags.push(tag);
+      }
+
+      input.value = "";
+
+      saveAllData();
+      renderCharacterTagPicker();
+      renderTagManagement();
+      renderFilterTags();
+    }
+
+    function renameTag(oldTag) {
+      const newTag = prompt("新しいタグ名を入力してね。", oldTag);
+
+      if (newTag === null) return;
+
+      const trimmed = newTag.trim();
+
+      if (!trimmed) {
+        alert("タグ名を空にはできないよ！");
+        return;
+      }
+
+      if (trimmed !== oldTag && allTags.includes(trimmed)) {
+        alert("その名前のタグはもうあるよ！");
+        return;
+      }
+
+      if (trimmed === oldTag) return;
+
+      allTags = allTags.map(tag =>
+        tag === oldTag ? trimmed : tag
+      );
+
+      characters.forEach(character => {
+        character.tags = (character.tags || []).map(tag =>
+          tag === oldTag ? trimmed : tag
+        );
+      });
+
+      selectedFilterTags = selectedFilterTags.map(tag =>
+        tag === oldTag ? trimmed : tag
+      );
+
+      saveAllData();
+      renderTagManagement();
+      renderFilterTags();
+      displayCharacters();
+
+      if (currentCharacterIndex !== null) {
+        renderCharacterTagPicker();
+      }
+    }
+
+    function deleteTag(tag) {
+      if (!confirm(
+        "タグ「" + tag + "」を削除するよ。すべてのキャラからも外れるけどいい？"
+      )) return;
+
+      allTags = allTags.filter(item => item !== tag);
+
+      characters.forEach(character => {
+        character.tags = (character.tags || []).filter(
+          item => item !== tag
+        );
+      });
+
+      selectedFilterTags = selectedFilterTags.filter(
+        item => item !== tag
+      );
+
+      saveAllData();
+      renderTagManagement();
+      renderFilterTags();
+      displayCharacters();
+
+      if (currentCharacterIndex !== null) {
+        renderCharacterTagPicker();
+      }
+    }
+
+    function renderTagManagement() {
+      const container = document.getElementById("tagManagementList");
+      container.innerHTML = "";
+
+      if (allTags.length === 0) {
+        container.innerHTML =
+          '<p class="empty-message">まだタグがないよ。上から作ってみてね！</p>';
+        return;
+      }
+
+      allTags.forEach(tag => {
+        const row = document.createElement("div");
+        row.className = "tag-management-item";
+
+        const chip = document.createElement("span");
+        chip.className = "tag-chip";
+        chip.textContent = tag;
+
+        const rename = document.createElement("button");
+        rename.className = "rename-tag-button";
+        rename.textContent = "名前変更";
+        rename.onclick = () => renameTag(tag);
+
+        const remove = document.createElement("button");
+        remove.className = "small-gray-button";
+        remove.textContent = "削除";
+        remove.onclick = () => deleteTag(tag);
+
+        row.append(chip, rename, remove);
+        container.appendChild(row);
+      });
+    }
+
+    function renderFilterTags() {
+      const container = document.getElementById("filterTags");
+      container.innerHTML = "";
+
+      if (allTags.length === 0) {
+        container.innerHTML =
+          '<p class="empty-message">タグを作ると、ここで絞り込めるよ。</p>';
+        return;
+      }
+
+      allTags.forEach(tag => {
+        const label = document.createElement("label");
+        label.className = "tag-option";
+        label.style.margin = "0";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = selectedFilterTags.includes(tag);
+
+        checkbox.onchange = function() {
+          if (checkbox.checked) {
+            if (!selectedFilterTags.includes(tag)) {
+              selectedFilterTags.push(tag);
+            }
+          } else {
+            selectedFilterTags = selectedFilterTags.filter(
+              item => item !== tag
+            );
+          }
+        };
+
+        const text = document.createElement("span");
+        text.textContent = tag;
+
+        label.append(checkbox, text);
+        container.appendChild(label);
+      });
+    }
+
+    function applyTagFilters() {
+      displayCharacters();
+    }
+
+    function clearTagFilters() {
+      selectedFilterTags = [];
+      renderFilterTags();
+      displayCharacters();
+    }
+
+    function displayCharacters() {
+      const list = document.getElementById("characterList");
+      list.innerHTML = "";
+
+      const filtered = characters
+        .map((character, index) => ({ character, index }))
+        .filter(item =>
+          selectedFilterTags.every(tag =>
+            (item.character.tags || []).includes(tag)
+          )
+        );
+
+      document.getElementById("resultCount").textContent =
+        "表示中：" + filtered.length + " / " + characters.length + " キャラ";
+
+      if (filtered.length === 0) {
+        list.innerHTML =
+          '<p class="empty-message">該当するキャラがいないよ。タグの選択を見直してみてね。</p>';
+        return;
+      }
+
+      filtered.forEach(({ character, index }) => {
+        const card = document.createElement("div");
+        card.className = "character-card";
+
+        const image = document.createElement("img");
+        image.alt = character.name || "キャラクター画像";
+
+        if (character.image) {
+          image.src = character.image;
+        }
+
+        const name = document.createElement("div");
+        name.className = "character-name";
+        name.textContent = character.name || "名前なし";
+
+        const tags = document.createElement("div");
+        tags.className = "character-tags";
+
+        (character.tags || []).forEach(tag => {
+          const chip = document.createElement("span");
+          chip.className = "tag-chip";
+          chip.textContent = tag;
+          tags.appendChild(chip);
+        });
+
+        const detailButton = document.createElement("button");
+        detailButton.className = "detail-button";
+        detailButton.textContent = "詳細を見る";
+        detailButton.onclick = () => openDetail(index);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "削除";
+
+        deleteButton.onclick = function() {
+          if (confirm("「" + character.name + "」を削除しますか？")) {
+            characters.splice(index, 1);
+            saveAllData();
+            displayCharacters();
+          }
+        };
+
+        card.append(image, name, tags, detailButton, deleteButton);
+        list.appendChild(card);
+      });
+    }
+
+    function renderCharacterTagPicker() {
+      const container = document.getElementById("characterTagPicker");
+      container.innerHTML = "";
+
+      const character = characters[currentCharacterIndex];
+      if (!character) return;
+
+      if (!Array.isArray(character.tags)) {
+        character.tags = [];
+      }
+
+      if (allTags.length === 0) {
+        container.innerHTML =
+          '<p class="empty-message">まだタグがないよ。下から新しいタグを作ってね。</p>';
+        return;
+      }
+
+      allTags.forEach(tag => {
+        const label = document.createElement("label");
+        label.className = "tag-option";
+        label.style.margin = "0";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = character.tags.includes(tag);
+
+        checkbox.onchange = function() {
+          if (checkbox.checked) {
+            if (!character.tags.includes(tag)) {
+              character.tags.push(tag);
+            }
+          } else {
+            character.tags = character.tags.filter(
+              item => item !== tag
+            );
+          }
+
+          saveAllData();
+          displayCharacters();
+        };
+
+        const text = document.createElement("span");
+        text.textContent = tag;
+
+        label.append(checkbox, text);
+        container.appendChild(label);
+      });
+    }
+
+    function openDetail(index) {
+      currentCharacterIndex = index;
+      const character = characters[index];
+
+      if (!Array.isArray(character.tags)) {
+        character.tags = [];
+      }
+
+      document.getElementById("detailImage").src = character.image || "";
+      document.getElementById("detailImageInput").value = "";
+      document.getElementById("detailName").value = character.name || "";
+      document.getElementById("detailAge").value = character.age || "";
+      document.getElementById("detailGender").value = character.gender || "";
+      document.getElementById("detailBirthday").value = character.birthday || "";
+      document.getElementById("detailHeight").value = character.height || "";
+      document.getElementById("detailPersonality").value = character.personality || "";
+      document.getElementById("detailLikes").value = character.likes || "";
+      document.getElementById("detailDislikes").value = character.dislikes || "";
+      document.getElementById("detailFirstPerson").value = character.firstPerson || "";
+      document.getElementById("detailSecondPerson").value = character.secondPerson || "";
+      document.getElementById("detailSpeech").value = character.speech || "";
+      document.getElementById("detailNewTagName").value = "";
+
+      const customContainer = document.getElementById("customFields");
+      customContainer.innerHTML = "";
+
+      if (character.customFields) {
+        character.customFields.forEach(field => {
+          createCustomField(field.title || "", field.value || "");
+        });
+      }
+
+      renderCharacterTagPicker();
+
+      document.getElementById("listPage").style.display = "none";
+      document.getElementById("detailPage").style.display = "block";
+    }
+
+    function createCustomField(title = "", value = "") {
+      const container = document.createElement("div");
+      container.className = "custom-field";
+
+      const header = document.createElement("div");
+      header.className = "custom-field-header";
+
+      const titleInput = document.createElement("input");
+      titleInput.type = "text";
+      titleInput.placeholder = "項目名";
+      titleInput.value = title;
+
+      const removeButton = document.createElement("button");
+      removeButton.className = "remove-field-button";
+      removeButton.textContent = "削除";
+      removeButton.onclick = () => container.remove();
+
+      header.append(titleInput, removeButton);
+
+      const valueInput = document.createElement("textarea");
+      valueInput.placeholder = "内容";
+      valueInput.value = value;
+
+      container.append(header, valueInput);
+      document.getElementById("customFields").appendChild(container);
+    }
+
+    function addCustomField() {
+      createCustomField();
+    }
+
+    function saveDetails() {
+      const character = characters[currentCharacterIndex];
+      if (!character) return;
+
+      const detailImage = document.getElementById("detailImage");
+
+      character.image = detailImage.getAttribute("src") || "";
+      character.name = document.getElementById("detailName").value.trim();
+      character.age = document.getElementById("detailAge").value;
+      character.gender = document.getElementById("detailGender").value;
+      character.birthday = document.getElementById("detailBirthday").value;
+      character.height = document.getElementById("detailHeight").value;
+      character.personality = document.getElementById("detailPersonality").value;
+      character.likes = document.getElementById("detailLikes").value;
+      character.dislikes = document.getElementById("detailDislikes").value;
+      character.firstPerson = document.getElementById("detailFirstPerson").value;
+      character.secondPerson = document.getElementById("detailSecondPerson").value;
+      character.speech = document.getElementById("detailSpeech").value;
+
+      character.customFields = [];
+
+      document.querySelectorAll("#customFields .custom-field").forEach(field => {
+        character.customFields.push({
+          title: field.querySelector("input").value,
+          value: field.querySelector("textarea").value
+        });
+      });
+
+      saveAllData();
+      alert("詳細情報を保存しました！");
+    }
+
+    function showListPage() {
+      displayCharacters();
+      renderTagManagement();
+      renderFilterTags();
+
+      document.getElementById("detailPage").style.display = "none";
+      document.getElementById("listPage").style.display = "block";
+    }
+
+    document.getElementById("newTagName").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addGlobalTag();
+      }
+    });
+
+    document.getElementById("detailNewTagName").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addTagFromDetail();
+      }
+    });
+
+    renderTagManagement();
+    renderFilterTags();
+    displayCharacters();
+  </script>
+</body>
+</html>
